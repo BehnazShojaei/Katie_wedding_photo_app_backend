@@ -35,10 +35,26 @@ SECRET_KEY = 'django-insecure-n(8g%8#&lr*))9obochp=!3uff(##c(6q!b%k-%@0y1!j5=!=9
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "your-deployed-app.com"] # Add your deployed app's hostname
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "your-deployed-app.com"
+]
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "https://your-frontend-url.com", # Add your frontend's URL
+    "https://localhost:5173",  # Add HTTPS version
+    "http://127.0.0.1:5173",
+    "https://127.0.0.1:5173",  # Add HTTPS version
+    "https://your-frontend-url.com",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "https://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://127.0.0.1:5173",
+    "https://your-frontend-url.com",
 ]
 
 CORS_ALLOW_METHODS = [
