@@ -18,8 +18,8 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-
-load_dotenv(BASE_DIR / ".env") 
+PROJECT_ROOT = BASE_DIR.parent
+load_dotenv(PROJECT_ROOT / ".env") 
 
 
 # SECURITY SETTINGS
@@ -157,10 +157,23 @@ AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')
 AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
 
-# Additional S3 Settings for Public/Private Access Control
+# Media Files
+MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-AWS_QUERYSTRING_AUTH = False  # Disable query string authentication for public URLs
-AWS_DEFAULT_ACL = None  # Set default ACL to None (public)
+AWS_LOCATION = 'media'
+
+# Add these print statements for debugging
+print("AWS Settings:")
+print(f"Bucket: {AWS_STORAGE_BUCKET_NAME}")
+print(f"Region: {AWS_S3_REGION_NAME}")
+print(f"Access Key: {'Set' if AWS_ACCESS_KEY_ID else 'Not Set'}")
+print(f"Secret Key: {'Set' if AWS_SECRET_ACCESS_KEY else 'Not Set'}")
+
+# Import and check the actual storage backend
+from storages.backends.s3boto3 import S3Boto3Storage
+storage_instance = S3Boto3Storage()
+print(f"Storage class: {storage_instance.__class__.__name__}")
+print(f"Storage location: {getattr(storage_instance, 'location', 'No location set')}")
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -178,9 +191,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-
-# Media Files
-MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
