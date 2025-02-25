@@ -1,2 +1,20 @@
+asgiref==3.8.1
+boto3==1.35.90
+botocore==1.35.90
+certifi==2024.12.14
+charset-normalizer==3.4.1
+dj-database-url==2.2.0  # Only if using PostgreSQL
 Django==5.1
+django-cors-headers==4.5.0  # If frontend is separate
+django-storages==1.14.4
 djangorestframework==3.15.2
+gunicorn==23.0.0  # For production deployment
+idna==3.10
+pillow==11.0.0
+psycopg2-binary==2.9.10  # Only if using PostgreSQL
+python-dateutil==2.9.0.post0
+python-dotenv==1.0.1
+requests==2.32.3
+s3transfer==0.10.4
+sqlparse==0.5.1
+urllib3==2.3.0
