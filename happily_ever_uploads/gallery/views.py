@@ -15,9 +15,26 @@ class ImageListCreateView(APIView):
     permission_classes = [IsAuthenticated]  
 
 
+
+class ImageListCreateView(APIView):
+    permission_classes = [IsAuthenticated]  
+
     def get(self, request):
+        if request.user.is_guest:
+            # Guests can only see images from their active passcode group
+            if request.user.passcode_group and request.user.passcode_group.is_active:
+                images = Image.objects.filter(
+                    passcode_group=request.user.passcode_group
+                ).order_by('-uploaded_at')
+            else:
+                return Response(
+                    {"error": "Invalid or inactive passcode group"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        else:
+            # Admin can see all images
+            images = Image.objects.all().order_by('-uploaded_at')
         
-        images = Image.objects.all().order_by('-uploaded_at')
         serializer = ImageSerializer(images, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -27,6 +44,14 @@ class ImageListCreateView(APIView):
             image_file = request.FILES.get('image')
             if not image_file:
                 return Response({'error': 'No image file provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Check if guest user has active passcode group
+            if request.user.is_guest:
+                if not request.user.passcode_group or not request.user.passcode_group.is_active:
+                    return Response(
+                        {"error": "Your passcode is no longer active"},
+                        status=status.HTTP_403_FORBIDDEN
+                    )
 
             # Create S3 storage instance
             storage = S3Boto3Storage()
