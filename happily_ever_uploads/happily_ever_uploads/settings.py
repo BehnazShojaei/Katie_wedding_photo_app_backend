@@ -71,6 +71,7 @@ CORS_ALLOW_METHODS = [
 INSTALLED_APPS = [
     'corsheaders',
     'gallery.apps.GalleryConfig',
+    'users.apps.UsersConfig',
     'rest_framework',
     'rest_framework.authtoken',
     'django.contrib.admin',
@@ -81,6 +82,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'storages',
 ]
+
+AUTH_USER_MODEL = 'users.CustomUser'
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -151,6 +154,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # AWS S3 Configuration
+
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
