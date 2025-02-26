@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from .models import Image
 from .serializers import ImageSerializer
 from django.conf import settings
@@ -11,26 +11,18 @@ from storages.backends.s3boto3 import S3Boto3Storage
 
 
 class ImageListCreateView(APIView):
-    """
-    Allow guests with a passcode to upload and view images.
-    """
+    
+    permission_classes = [IsAuthenticated]  
+
 
     def get(self, request):
-       
-        passcode = request.headers.get("GUEST_PASSCODE")  
-        if passcode != settings.GUEST_PASSCODE:
-            return Response({"error": "Oh dear, this passcode? Surely you jest! Try again, good sir/madam. 🍷"}, status=status.HTTP_403_FORBIDDEN)
         
-        images = Image.objects.all()
+        images = Image.objects.all().order_by('-uploaded_at')
         serializer = ImageSerializer(images, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
        
-        passcode = request.headers.get("GUEST_PASSCODE")
-        if passcode != settings.GUEST_PASSCODE:
-            return Response({"error": "Oh dear, this passcode? Surely you jest! Try again, good sir/madam. 🍷"}, status=status.HTTP_403_FORBIDDEN)
-        
         serializer = ImageSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -39,44 +31,37 @@ class ImageListCreateView(APIView):
 
 
 class ImageDetailView(APIView):
-    """
-    Allow guests with a passcode to view a single image by ID.
-    """
+    
+    permission_classes = [IsAuthenticated] 
 
     def get(self, request, pk):
-        """
-        Guests can view a single image by its ID if they provide the correct passcode.
-        """
-        passcode = request.headers.get("GUEST_PASSCODE")
-        if passcode != settings.GUEST_PASSCODE:
-            return Response(
-                {"error": "Nice try, but incorrect passcode! 🔒 The wedding bouncer says no."},
-                status=status.HTTP_403_FORBIDDEN
-            )
-
         try:
-            image = Image.objects.get(pk=pk)
+            image = Image.objects.get(pk=pk)  # Manually fetching the image
+            serializer = ImageSerializer(image)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except Image.DoesNotExist:
-            return Response({"error": "Image not found! 🖼️ Did the photographer run away?"}, status=status.HTTP_404_NOT_FOUND)
-
-        serializer = ImageSerializer(image)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
+            return Response(
+                {"error": "Image not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
 class ImageDeleteView(APIView):
-    """
-    Only superusers can delete images.
-    """
-    permission_classes = [IsAdminUser]  
-
+    
+    permission_classes = [IsAdminUser] 
+    
     def delete(self, request, pk):
         try:
             image = Image.objects.get(pk=pk)
+            image.delete()
+            return Response(
+                {"message": "Image deleted successfully"}, 
+                status=status.HTTP_204_NO_CONTENT
+            )
         except Image.DoesNotExist:
-            return Response({"error": "Image not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-        image.delete()
-        return Response({"message": "Image deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+            return Response(
+                {"error": "Image not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            ) 
 
 @csrf_exempt
 def test_upload(request):
