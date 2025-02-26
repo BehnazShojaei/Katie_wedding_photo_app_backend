@@ -1,5 +1,10 @@
 from rest_framework import serializers
 from .models import CustomUser
+from django.contrib.auth import get_user_model
+
+
+CustomUser = get_user_model()
+
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,3 +27,18 @@ class CustomUserSerializer(serializers.ModelSerializer):
                 setattr(instance, attr, value)
                 instance.save()  # Explicitly save the updated instance
                 return instance
+
+class ChangeAdminPasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)
+
+    def validate_old_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError("Old password is incorrect")
+        return value
+
+    def update(self, instance, validated_data):
+        instance.set_password(validated_data['new_password'])  # Hash new password
+        instance.save()
+        return instance
