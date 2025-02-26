@@ -38,6 +38,31 @@ class ImageListCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class ImageDetailView(APIView):
+    """
+    Allow guests with a passcode to view a single image by ID.
+    """
+
+    def get(self, request, pk):
+        """
+        Guests can view a single image by its ID if they provide the correct passcode.
+        """
+        passcode = request.headers.get("GUEST_PASSCODE")
+        if passcode != settings.GUEST_PASSCODE:
+            return Response(
+                {"error": "Nice try, but incorrect passcode! 🔒 The wedding bouncer says no."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        try:
+            image = Image.objects.get(pk=pk)
+        except Image.DoesNotExist:
+            return Response({"error": "Image not found! 🖼️ Did the photographer run away?"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ImageSerializer(image)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class ImageDeleteView(APIView):
     """
     Only superusers can delete images.
