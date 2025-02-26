@@ -8,7 +8,6 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from storages.backends.s3boto3 import S3Boto3Storage
-from .permissions import IsSuperUser
 
 
 class ImageListCreateView(APIView):
@@ -72,7 +71,7 @@ class ImageDetailView(APIView):
         
 class ImageDeleteView(APIView):
     
-    permission_classes = [IsSuperUser] 
+    permission_classes = [IsAdminUser] 
     
     def delete(self, request, pk):
         try:
