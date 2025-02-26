@@ -22,12 +22,36 @@ class ImageListCreateView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-       
-        serializer = ImageSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            # Get the image file from the request
+            image_file = request.FILES.get('image')
+            if not image_file:
+                return Response({'error': 'No image file provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Create S3 storage instance
+            storage = S3Boto3Storage()
+            
+            # Save file to S3 with media prefix
+            file_name = storage.save(f'media/{image_file.name}', image_file)
+            file_url = storage.url(file_name)
+
+            # Create the image data dictionary
+            image_data = {
+                'image_url': file_url,
+                'caption': request.data.get('caption', ''),
+                'uploaded_by': request.user.id,  # Associate with the authenticated user
+            }
+
+            # Serialize and save the image data
+            serializer = ImageSerializer(data=image_data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            print(f"Error uploading image: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class ImageDetailView(APIView):
