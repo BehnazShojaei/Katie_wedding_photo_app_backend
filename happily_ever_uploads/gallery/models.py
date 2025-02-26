@@ -7,11 +7,5 @@ class Image(models.Model):
     comment = models.TextField(blank=True, null=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
-    owner = models.ForeignKey(
-       get_user_model(),
-       on_delete=models.CASCADE,
-       related_name='owned_Image'
-   )
-
     def __str__(self):
         return f"Image by {self.name}"
