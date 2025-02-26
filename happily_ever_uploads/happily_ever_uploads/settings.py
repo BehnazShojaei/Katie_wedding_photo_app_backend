@@ -18,12 +18,9 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+
 PROJECT_ROOT = BASE_DIR.parent
 load_dotenv(PROJECT_ROOT / ".env") 
-
-
-# SECURITY SETTINGS
-GUEST_PASSCODE = os.environ.get('GUEST_PASSCODE')
 
 
 # Quick-start development settings - unsuitable for production
@@ -172,6 +169,12 @@ print(f"Bucket: {AWS_STORAGE_BUCKET_NAME}")
 print(f"Region: {AWS_S3_REGION_NAME}")
 print(f"Access Key: {'Set' if AWS_ACCESS_KEY_ID else 'Not Set'}")
 print(f"Secret Key: {'Set' if AWS_SECRET_ACCESS_KEY else 'Not Set'}")
+
+
+
+
+print("DEBUG: AWS_STORAGE_BUCKET_NAME =", os.getenv("AWS_STORAGE_BUCKET_NAME"))
+
 
 # Import and check the actual storage backend
 from storages.backends.s3boto3 import S3Boto3Storage
