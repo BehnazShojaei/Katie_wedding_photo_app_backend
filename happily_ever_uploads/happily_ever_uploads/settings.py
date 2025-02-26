@@ -40,7 +40,7 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
-    # "snappily-ever-after-2672d6c49ddd.herokuapp.com",
+    "snappily-ever-after-2672d6c49ddd.herokuapp.com",
     "https://snappily-ever-after-2672d6c49ddd.herokuapp.com/",
     "http://snappily-ever-after-2672d6c49ddd.herokuapp.com/"
 
@@ -50,9 +50,9 @@ ALLOWED_HOSTS = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "https://localhost:5173",  # Add HTTPS version
+    "https://localhost:5173",  
     "http://127.0.0.1:5173",
-    "https://127.0.0.1:5173",  # Add HTTPS version
+    "https://127.0.0.1:5173",  
     "https://your-frontend-url.com",
 ]
 
@@ -93,8 +93,9 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'users.CustomUser'
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -213,6 +214,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
