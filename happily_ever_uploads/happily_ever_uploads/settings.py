@@ -24,14 +24,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 PROJECT_ROOT = BASE_DIR.parent
 load_dotenv(PROJECT_ROOT / ".env") 
 
-# BASE_DIR = Path(__file__).resolve().parent.parent
-# load_dotenv(BASE_DIR / ".env")  # Load .env from BASE_DIR
-
-test_key = os.getenv("test_key")
-# print('test_key', test_key)
-print(f"test_key : {test_key}")
-
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -48,7 +40,10 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
-    "snappily-ever-after-2672d6c49ddd.herokuapp.com"
+    # "snappily-ever-after-2672d6c49ddd.herokuapp.com",
+    "https://snappily-ever-after-2672d6c49ddd.herokuapp.com/",
+    "http://snappily-ever-after-2672d6c49ddd.herokuapp.com/"
+
 ]
 
 

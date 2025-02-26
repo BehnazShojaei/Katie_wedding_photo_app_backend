@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
-from .models import CustomUser
+from .models import CustomUser, PasscodeGroup
 from .serializers import CustomUserSerializer, ChangeAdminPasswordSerializer
 
 
@@ -19,6 +19,13 @@ class LoginView(ObtainAuthToken):
         )
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
+
+        # Check if user's passcode group is active (for guests only)
+        if user.is_guest and (not user.passcode_group or not user.passcode_group.is_active):
+            return Response(
+                {"error": "This passcode is no longer active"},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         # Generate or get token
         token, created = Token.objects.get_or_create(user=user)
@@ -37,16 +44,37 @@ class UpdateGuestUserView(APIView):
 
     def put(self, request):
         try:
-            guest_user = CustomUser.objects.get(is_guest=True)
-        except CustomUser.DoesNotExist:
-            return Response({"error": "Guest user not found"}, status=status.HTTP_404_NOT_FOUND)
+            # Create a new passcode group
+            new_group = PasscodeGroup.objects.create(
+                name=f"Group {PasscodeGroup.objects.count() + 1}"
+            )
+            
+            # Deactivate all previous passcode groups
+            PasscodeGroup.objects.exclude(id=new_group.id).update(is_active=False)
 
-        serializer = CustomUserSerializer(guest_user, data=request.data, partial=True)
-        
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "Guest user updated successfully"})
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # Get or create guest user
+            guest_user, created = CustomUser.objects.get_or_create(
+                is_guest=True,
+                defaults={'username': 'guest'}
+            )
+
+            # Update guest user with new credentials and group
+            guest_user.passcode_group = new_group
+            if 'username' in request.data:
+                guest_user.username = request.data['username']
+            if 'password' in request.data:
+                guest_user.set_password(request.data['password'])
+            guest_user.save()
+
+            return Response({
+                "message": "Guest user updated successfully",
+                "group_name": new_group.name
+            })
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class ChangeAdminPasswordView(APIView):
