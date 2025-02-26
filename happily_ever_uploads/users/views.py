@@ -12,6 +12,10 @@ from .serializers import CustomUserSerializer, ChangeAdminPasswordSerializer
 class LoginView(ObtainAuthToken):
     permission_classes = [AllowAny]  
 
+    def get(self, request):
+        return Response({"message": "Please login with Passcode"})
+
+
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(
             data=request.data, 
