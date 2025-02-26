@@ -48,8 +48,10 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
-    "your-deployed-app.com"
+    "snappily-ever-after-2672d6c49ddd.herokuapp.com"
 ]
+
+
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
