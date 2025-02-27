@@ -10,10 +10,6 @@ from django.views.decorators.csrf import csrf_exempt
 from storages.backends.s3boto3 import S3Boto3Storage
 
 
-class ImageListCreateView(APIView):
-    
-    permission_classes = [IsAuthenticated]  
-
 
 
 class ImageListCreateView(APIView):
