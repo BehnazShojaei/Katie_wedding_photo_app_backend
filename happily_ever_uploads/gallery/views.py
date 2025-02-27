@@ -11,12 +11,6 @@ from storages.backends.s3boto3 import S3Boto3Storage
 
 
 class ImageListCreateView(APIView):
-    
-    permission_classes = [IsAuthenticated]  
-
-
-
-class ImageListCreateView(APIView):
     permission_classes = [IsAuthenticated]  
 
     def get(self, request):
@@ -64,19 +58,41 @@ class ImageListCreateView(APIView):
             image_data = {
                 'image_url': file_url,
                 'caption': request.data.get('caption', ''),
-                'uploaded_by': request.user.id,  # Associate with the authenticated user
             }
 
+           
+
             # Serialize and save the image data
-            serializer = ImageSerializer(data=image_data)
+        #     serializer = ImageSerializer(data=image_data)
+        #     if serializer.is_valid():
+        #         serializer.save()
+
+
+        #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+        #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # except Exception as e:
+        #     print(f"Error uploading image: {str(e)}")
+        #     return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+            serializer = ImageSerializer(data=image_data, context={'request': request})
+        
             if serializer.is_valid():
-                serializer.save()
+                image = serializer.save()
+
+                # Set passcode group after save
+                if request.user.is_guest and request.user.passcode_group:
+                    image.passcode_group = request.user.passcode_group
+                    image.save()
+                
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            
         except Exception as e:
             print(f"Error uploading image: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 class ImageDetailView(APIView):
