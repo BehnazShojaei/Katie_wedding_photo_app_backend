@@ -4,7 +4,7 @@ from .models import Image
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
-        fields = ['id', 'image', 'name', 'comment', 'uploaded_at', 'uploaded_by']
+        fields = ['id', 'image', 'name', 'comment', 'uploaded_at', 'uploaded_by', 'passcode_group']
         read_only_fields = ['uploaded_at', 'uploaded_by']
 
 
