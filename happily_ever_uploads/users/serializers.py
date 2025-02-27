@@ -22,10 +22,10 @@ class CustomUserSerializer(serializers.ModelSerializer):
     
     def update(self, instance, validated_data):
         if 'password' in validated_data:
-            instance.set_password(validated_data.pop('password'))  # Hash password properly
+            instance.set_password(validated_data.pop('password'))  
             for attr, value in validated_data.items():
                 setattr(instance, attr, value)
-                instance.save()  # Explicitly save the updated instance
+                instance.save()  
                 return instance
 
 class ChangeAdminPasswordSerializer(serializers.Serializer):
@@ -39,6 +39,6 @@ class ChangeAdminPasswordSerializer(serializers.Serializer):
         return value
 
     def update(self, instance, validated_data):
-        instance.set_password(validated_data['new_password'])  # Hash new password
+        instance.set_password(validated_data['new_password'])  
         instance.save()
         return instance
