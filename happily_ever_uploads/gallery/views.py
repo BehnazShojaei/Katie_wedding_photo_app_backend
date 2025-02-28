@@ -51,27 +51,15 @@ class ImageListCreateView(APIView):
                         {"error": "Your passcode is no longer active!"},
                         status=status.HTTP_403_FORBIDDEN
                     )
-
-            # Create S3 storage instance
-            storage = S3Boto3Storage()
-            
-            # Save file to S3 with media prefix
-            file_name = storage.save(f'media/{image_file.name}', image_file)
-            file_url = storage.url(file_name)
-
+                
+        
          # Create the image data dictionary matching your model fields
             image_data = {
-                'image': file_url,  
+                'image': image_file,  
                 'name': request.data.get('name', ''),
                 'comment': request.data.get('comment', '')
                 }
 
-            # Create the image data dictionary Gina version
-            # image_data = {
-            #     'image_url': file_url,
-            #     'caption': request.data.get('caption', ''),
-            #     'uploaded_by': request.user.id,  # Associate with the authenticated user
-            # }
 
             # Serialize and save the image data
             serializer = ImageSerializer(data=image_data, context={'request': request})
