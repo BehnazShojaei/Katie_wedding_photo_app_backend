@@ -10,12 +10,9 @@ from django.views.decorators.csrf import csrf_exempt
 from storages.backends.s3boto3 import S3Boto3Storage
 
 
-<<<<<<< Updated upstream
 
-
-=======
->>>>>>> Stashed changes
 class ImageListCreateView(APIView):
+
     permission_classes = [IsAuthenticated]  
 
     def get(self, request):
@@ -37,12 +34,6 @@ class ImageListCreateView(APIView):
         serializer = ImageSerializer(images, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-
-
-   
-
-
-
 
     def post(self, request):
 
@@ -70,7 +61,6 @@ class ImageListCreateView(APIView):
 
          # Create the image data dictionary matching your model fields
             image_data = {
-<<<<<<< Updated upstream
                 'image': file_url,  
                 'name': request.data.get('name', ''),
                 'comment': request.data.get('comment', '')
@@ -82,20 +72,6 @@ class ImageListCreateView(APIView):
             #     'caption': request.data.get('caption', ''),
             #     'uploaded_by': request.user.id,  # Associate with the authenticated user
             # }
-=======
-                'image_url': file_url,
-                'caption': request.data.get('caption', ''),
-                'uploaded_by': request.user.id,  # Associate with the authenticated user
-            }
-            
-            # image_data = {
-            #     'image_url' : file_url,  # Store the uploaded file URL
-            #     'name' : request.data.get('name', ''),  
-            #     'comment' :request.data.get('comment', ''),  
-            #     'uploaded_by' :request.user,  # Assign the current user
-            #     }
-
->>>>>>> Stashed changes
 
             # Serialize and save the image data
             serializer = ImageSerializer(data=image_data, context={'request': request})
