@@ -33,8 +33,17 @@ class ImageListCreateView(APIView):
         
         serializer = ImageSerializer(images, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+
+   
+
+
+
 
     def post(self, request):
+
+
         try:
             # Get the image file from the request
             image_file = request.FILES.get('image')
@@ -56,15 +65,22 @@ class ImageListCreateView(APIView):
             file_name = storage.save(f'media/{image_file.name}', image_file)
             file_url = storage.url(file_name)
 
-            # Create the image data dictionary
+         # Create the image data dictionary matching your model fields
             image_data = {
-                'image_url': file_url,
-                'caption': request.data.get('caption', ''),
-                'uploaded_by': request.user.id,  # Associate with the authenticated user
-            }
+                'image': file_url,  
+                'name': request.data.get('name', ''),
+                'comment': request.data.get('comment', '')
+                }
+
+            # Create the image data dictionary Gina version
+            # image_data = {
+            #     'image_url': file_url,
+            #     'caption': request.data.get('caption', ''),
+            #     'uploaded_by': request.user.id,  # Associate with the authenticated user
+            # }
 
             # Serialize and save the image data
-            serializer = ImageSerializer(data=image_data)
+            serializer = ImageSerializer(data=image_data, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
