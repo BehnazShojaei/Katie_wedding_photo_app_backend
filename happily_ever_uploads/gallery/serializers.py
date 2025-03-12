@@ -15,4 +15,8 @@ class ImageSerializer(serializers.ModelSerializer):
             if request.user.is_guest and hasattr(request.user, 'passcode_group'):
                 validated_data['passcode_group'] = request.user.passcode_group
 
+        # Ensure image is optional
+        if 'image' not in validated_data:
+            validated_data['image'] = None
+
         return super().create(validated_data)
