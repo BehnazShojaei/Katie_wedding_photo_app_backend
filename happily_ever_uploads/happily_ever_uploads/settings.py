@@ -53,7 +53,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://localhost:5173",  
     "http://127.0.0.1:5173",
     "https://127.0.0.1:5173",  
-    "https://your-frontend-url.com",
+    "https://snappily-ever-after.netlify.app",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -61,7 +61,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://localhost:5173",
     "http://127.0.0.1:5173",
     "https://127.0.0.1:5173",
-    "https://your-frontend-url.com",
+    "https://snappily-ever-after.netlify.app",
 ]
 
 CORS_ALLOW_METHODS = [
