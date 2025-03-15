@@ -5,11 +5,11 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from .models import Image
 from .serializers import ImageSerializer
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from storages.backends.s3boto3 import S3Boto3Storage
-
-
+from .serializers import ImageSerializer
+from datetime import datetime
 
 class ImageListCreateView(APIView):
 
@@ -105,6 +105,84 @@ class ImageDeleteView(APIView):
                 {"error": "Image not found"}, 
                 status=status.HTTP_404_NOT_FOUND
             ) 
+
+class ImageDownloadView(APIView):
+    permission_classes = [IsAdminUser]
+    
+    def get(self, request, pk):
+        try:
+            image = Image.objects.get(pk=pk)
+            if not image.image:
+                return Response(
+                    {"error": "No image file associated with this record"}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+           # Get the file name from the original image
+            original_filename = image.image.name.split('/')[-1]
+            
+            # Generate a signed URL with a custom filename in Content-Disposition
+            url = image.image.storage.url(
+                image.image.name,
+                parameters={
+                    'ResponseContentDisposition': f'attachment; filename="{original_filename}"'
+                },
+                expire=60
+            )
+            
+            # Return the signed URL
+            return HttpResponseRedirect(url)
+            
+        except Image.DoesNotExist:
+            return Response(
+                {"error": "Image not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+class ExportDataView(APIView):
+    permission_classes = [IsAdminUser]
+    
+    def get(self, request):
+        try:
+            # Get all images ordered by upload date
+            images = Image.objects.all().order_by('-uploaded_at')
+            
+            # Use your existing serializer with request context for full URLs
+            serializer = ImageSerializer(
+                images, 
+                many=True,
+                context={'request': request}  # This ensures absolute URLs for images
+            )
+            
+            # Prepare the export data
+            export_data = {
+                'exported_at': datetime.now().isoformat(),
+                'total_images': len(images),
+                'images': [{
+                    'id': img['id'],
+                    'name': img['name'],
+                    'comment': img['comment'],
+                    'uploaded_at': img['uploaded_at'],
+                    'image_url': request.build_absolute_uri(img['image']) if img['image'] else None,
+                    'passcode_group': img['passcode_group']
+                } for img in serializer.data]
+            }
+            
+            # Return as JSON file
+            response = JsonResponse(
+                export_data,
+                json_dumps_params={'indent': 2},
+                content_type='application/json'
+            )
+            response['Content-Disposition'] = f'attachment; filename="wedding-guestbook-export-{datetime.now().strftime("%Y-%m-%d")}.json"'
+            return response
+            
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 @csrf_exempt
 def test_upload(request):
