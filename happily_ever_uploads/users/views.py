@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from .models import CustomUser, PasscodeGroup
-from .serializers import CustomUserSerializer, ChangeAdminPasswordSerializer
+from .serializers import CustomUserSerializer, ChangeAdminSerializer
 
 
 # Single Login Endpoint for Both Admin & Guest
@@ -81,14 +81,14 @@ class UpdateGuestUserView(APIView):
             )
 
 
-class ChangeAdminPasswordView(APIView):
+class ChangeAdminCredentialsView(APIView):
     permission_classes = [IsAdminUser]  # Ensure only admins can access
 
     def put(self, request):
-        serializer = ChangeAdminPasswordSerializer(data=request.data, context={'request': request})
+        serializer = ChangeAdminSerializer(data=request.data, context={'request': request})
 
         if serializer.is_valid():
             serializer.update(request.user, serializer.validated_data)
-            return Response({"message": "Password updated successfully"}, status=status.HTTP_200_OK)
+            return Response({"message": "Admin credentials updated successfully"}, status=status.HTTP_200_OK)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
