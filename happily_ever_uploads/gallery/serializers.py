@@ -6,6 +6,11 @@ class ImageSerializer(serializers.ModelSerializer):
         model = Image
         fields = ['id', 'image', 'name', 'comment', 'uploaded_at', 'uploaded_by', 'passcode_group']
         read_only_fields = ['uploaded_at', 'uploaded_by', 'passcode_group']  
+       
+        extra_kwargs = {
+            'image': {'required': False, 'allow_null': True},  # Allowing image to be optional
+            }
+
 
 
     def create(self, validated_data):
@@ -14,9 +19,5 @@ class ImageSerializer(serializers.ModelSerializer):
             validated_data['uploaded_by'] = request.user  
             if request.user.is_guest and hasattr(request.user, 'passcode_group'):
                 validated_data['passcode_group'] = request.user.passcode_group
-
-        # Ensure image is optional
-        if 'image' not in validated_data:
-            validated_data['image'] = None
 
         return super().create(validated_data)

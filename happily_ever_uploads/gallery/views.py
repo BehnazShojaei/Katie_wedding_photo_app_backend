@@ -39,11 +39,9 @@ class ImageListCreateView(APIView):
 
 
         try:
-            # Get the image file from the request
-            image_file = request.FILES.get('image')
-            if not image_file:
-                return Response({'error': 'No image file provided'}, status=status.HTTP_400_BAD_REQUEST)
-
+            # Get the image file from the request 
+            image_file = request.FILES.get('image', None)
+            
             # Check if guest user has active passcode group
             if request.user.is_guest:
                 if not request.user.passcode_group or not request.user.passcode_group.is_active:
