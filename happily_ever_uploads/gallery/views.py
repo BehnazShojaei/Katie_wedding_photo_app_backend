@@ -39,8 +39,17 @@ class ImageListCreateView(APIView):
 
 
         try:
+
+            uploaded_files = request.FILES.getlist('image')  
+            
+            if len(uploaded_files) > 1:
+                return Response(
+                    {"error": "Only one image can be uploaded at a time!"},
+                    status=status.HTTP_400_BAD_REQUEST
+                    )
+
             # Get the image file from the request 
-            image_file = request.FILES.get('image', None)
+            image_file = uploaded_files[0] if uploaded_files else None
             
             # Check if guest user has active passcode group
             if request.user.is_guest:
